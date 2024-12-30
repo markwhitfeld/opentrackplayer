@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { AudioTrack } from '../../../audio-core';
+import { AudioFile } from '../../../audio-core';
 
 @Component({
   selector: 'app-track-controls',
@@ -63,7 +63,7 @@ import { AudioTrack } from '../../../audio-core';
   `]
 })
 export class TrackControlsComponent {
-  @Input({ required: true }) track!: AudioTrack;
+  @Input({ required: true }) track!: AudioFile;
   @Output() volumeChange = new EventEmitter<number>();
   @Output() panChange = new EventEmitter<number>();
   @Output() muteToggle = new EventEmitter<void>();

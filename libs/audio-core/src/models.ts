@@ -1,7 +1,8 @@
-export interface AudioTrack {
+export interface AudioFile {
   id: string;
   name: string;
-  buffer: AudioBuffer;
+  buffer: AudioBuffer | null;
+  isLoading: boolean;
   volume: number;
   pan: number;
   muted: boolean;

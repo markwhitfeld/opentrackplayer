@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { AudioTrack } from '../../audio-core';
+import { AudioFile } from '../../audio-core';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class PlaybackService {
   readonly isPlaying = signal(false);
   readonly currentTime = signal(0);
 
-  async play(tracks: AudioTrack[]) {
+  async play(tracks: AudioFile[]) {
     if (this.isPlaying()) {
       return;
     }
