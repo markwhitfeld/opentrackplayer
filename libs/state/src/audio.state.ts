@@ -5,9 +5,10 @@ import { FileRef, FileService } from "../../file-management/src/file.service";
 import { PlaybackService } from "../../playback-controls/src/playback.service";
 import { AudioService } from "../../audio-core";
 import * as Actions from "./audio.actions";
-import { patch, updateItem } from "@ngxs/store/operators";
+import { StateOperator, patch, updateItem } from "@ngxs/store/operators";
 
 export interface AudioTrack {
+  id: string;
   fileRef: FileRef;
   volume: number;
   pan: number;
@@ -16,7 +17,7 @@ export interface AudioTrack {
 }
 
 export interface AudioStateModel {
-  tracks: AudioTrack[];
+  trackMap: Record<string, AudioTrack>;
   isPlaying: boolean;
   currentTime: number;
 }
@@ -24,7 +25,7 @@ export interface AudioStateModel {
 @State<AudioStateModel>({
   name: "audio",
   defaults: {
-    tracks: [],
+    trackMap: {},
     isPlaying: false,
     currentTime: 0,
   },
@@ -43,9 +44,9 @@ export class AudioState {
     action: Actions.LoadFolder
   ) {
     const fileRefs = await this.fileService.getAudioFiles(action.dirHandle);
-    const loadPromises: Promise<void>[] = [];
     const tracks = fileRefs.map<AudioTrack>((fileRef) => {
       return {
+        id: fileRef.id,
         fileRef,
         muted: false,
         pan: 0,
@@ -53,7 +54,11 @@ export class AudioState {
         volume: 100,
       };
     });
-    ctx.patchState({ tracks });
+    const trackMap: Record<string, AudioTrack> = {};
+    tracks.forEach((item) => {
+      trackMap[item.fileRef.id] = item;
+    });
+    ctx.patchState({ trackMap });
 
     await Promise.all(
       fileRefs.map((file) =>
@@ -65,6 +70,7 @@ export class AudioState {
       )
       // fileRefs.map(file => this.audioService.loadAudioFile(file))
     );
+    await this.playbackService.load(tracks);
   }
 
   @Action(Actions.UpdateTrackFile)
@@ -74,49 +80,85 @@ export class AudioState {
   ) {
     const fileRef = action.fileRef;
     ctx.setState(
-      patch({
-        tracks: updateItem(
-          (track) => track.fileRef.id === fileRef.id,
-          patch({ fileRef })
-        ),
-      })
+      patchTrack(fileRef.id, patch({ fileRef }))
     );
   }
 
   @Action(Actions.PlayTracks)
   async play(ctx: StateContext<AudioStateModel>) {
-    const state = ctx.getState();
-    await this.playbackService.play(state.tracks);
-    ctx.patchState({ isPlaying: true });
+    await this.playbackService.play();
+    ctx.patchState({ isPlaying: this.playbackService.isPlaying() });
   }
 
   @Action(Actions.PauseTracks)
   pause(ctx: StateContext<AudioStateModel>) {
     this.playbackService.pause();
-    ctx.patchState({ isPlaying: false });
+    ctx.patchState({ isPlaying: this.playbackService.isPlaying() });
   }
 
   @Action(Actions.UpdateTrackVolume)
-  updateVolume(
+  async updateVolume(
     ctx: StateContext<AudioStateModel>,
     action: Actions.UpdateTrackVolume
   ) {
-    const state = ctx.getState();
-    const tracks = state.tracks.map((track) =>
-      track.id === action.trackId ? { ...track, volume: action.volume } : track
+    const volume = action.volume;
+    const trackId = action.trackId;
+    ctx.setState(
+      patchTrack(trackId, patch({ volume }))
     );
-    ctx.patchState({ tracks });
+    await this.playbackService.setGain(trackId, volume);
   }
 
   @Action(Actions.UpdateTrackPan)
-  updatePan(
+  async updatePan(
     ctx: StateContext<AudioStateModel>,
     action: Actions.UpdateTrackPan
   ) {
-    const state = ctx.getState();
-    const tracks = state.tracks.map((track) =>
-      track.id === action.trackId ? { ...track, pan: action.pan } : track
+    const pan = action.pan;
+    const trackId = action.trackId;
+    ctx.setState(
+      patchTrack(trackId, patch({ pan }))
     );
-    ctx.patchState({ tracks });
+    await this.playbackService.setGain(trackId, pan);
   }
+
+  @Action(Actions.ToggleTrackMute)
+  async toggleTrackMute(
+    ctx: StateContext<AudioStateModel>,
+    action: Actions.ToggleTrackMute
+  ) {
+    const trackId = action.trackId;
+    const mute = !ctx.getState().trackMap[trackId]?.muted
+    ctx.setState(
+      patchTrack(trackId, patch({ muted: mute }))
+    );
+    if (mute){
+      await this.playbackService.mute(trackId);
+    } else {
+      await this.playbackService.unmute(trackId);
+    }
+  }
+
+  @Action(Actions.ToggleTrackSolo)
+  async toggleTrackSolo(
+    ctx: StateContext<AudioStateModel>,
+    action: Actions.ToggleTrackSolo
+  ) {
+    // const trackId = action.trackId;
+    // ctx.setState(
+    //   patchTrack(trackId, patch({ pan }))
+    // );
+    // await this.playbackService.setGain(trackId, pan);
+  }
+}
+
+function patchTrack(
+  id: string,
+  op: StateOperator<AudioTrack>
+): StateOperator<AudioStateModel> {
+  return patch({
+    trackMap: patch({
+      [id]: op,
+    }),
+  });
 }

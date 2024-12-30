@@ -3,11 +3,11 @@ import { Injectable } from "@angular/core";
 export interface FileRef {
   id: string;
   name: string;
-  fileLoaded: boolean;
+  fileInitialised: boolean;
   dataLoaded: boolean;
 }
 
-export interface FileTracker extends FileRef {
+interface FileTracker extends FileRef {
   file: File | null;
   getFile(): Promise<File>;
   arrayBuffer: ArrayBuffer | null;
@@ -47,13 +47,19 @@ export class FileService {
   getFileRef(id: string): FileRef | null {
     const fileTracker = this.fileTrackers.get(id);
     if (!fileTracker) return null;
-    const { name, dataLoaded, fileLoaded } = fileTracker;
+    const { name, dataLoaded, fileInitialised } = fileTracker;
     return {
       id,
       name,
       dataLoaded,
-      fileLoaded,
+      fileInitialised,
     };
+  }
+
+  async getArrayBuffer(id: string) {
+    const fileTracker = this.fileTrackers.get(id);
+    if (!fileTracker) return null;
+    return await fileTracker.getArrayBuffer();
   }
 
   async getLoadedFileRef(id: string): Promise<FileRef | null> {
@@ -71,7 +77,7 @@ export class FileService {
     const fileTracker: FileTracker = {
       id,
       name: entry.name,
-      fileLoaded: false,
+      fileInitialised: false,
       file: null,
       getFile() {
         return getFilePromise;
@@ -85,7 +91,7 @@ export class FileService {
     this.fileTrackers.set(id, fileTracker);
     getFilePromise.then((file) => {
       fileTracker.file = file;
-      fileTracker.fileLoaded = true;
+      fileTracker.fileInitialised = true;
     });
     getArrayBufferPromise.then((arrayBuffer) => {
       fileTracker.arrayBuffer = arrayBuffer;

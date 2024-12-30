@@ -1,8 +1,10 @@
-import { createPropertySelectors } from '@ngxs/store';
+import { createPropertySelectors, createSelector } from '@ngxs/store';
 import { AudioStateModel, AudioState } from './audio.state';
 
 export const {
-  tracks,
+  trackMap,
   isPlaying,
   currentTime
 } = createPropertySelectors<AudioStateModel>(AudioState);
+
+export const tracks = createSelector([trackMap], (map) => Object.values(map));

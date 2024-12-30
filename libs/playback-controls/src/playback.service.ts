@@ -1,29 +1,85 @@
-import { Injectable, signal } from '@angular/core';
-import { AudioFile } from '../../audio-core';
+import { Injectable, inject, signal } from "@angular/core";
+import { AudioTrack } from "../../state";
+import { FileRef, FileService } from "../../file-management/src/file.service";
+import { lazy } from "./lazy";
+
+interface AudioStream {
+  audioBuffer: AudioBuffer;
+  source: AudioBufferSourceNode;
+  gainNode: GainNode;
+  panNode: StereoPannerNode;
+}
+
+const getAudioContext = lazy(() => new AudioContext());
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class PlaybackService {
-  private readonly audioContext = new AudioContext();
-  private sourceNodes = new Map<string, AudioBufferSourceNode>();
+  protected fileService = inject(FileService);
 
-  readonly isPlaying = signal(false);
+  private get audioContext() {
+    return getAudioContext();
+  }
+
+  private audioStreams = new Map<string, AudioStream>();
+
   readonly currentTime = signal(0);
+  readonly isPlaying = signal(false);
 
-  async play(tracks: AudioFile[]) {
+  async play() {
     if (this.isPlaying()) {
       return;
     }
-
     await this.audioContext.resume();
+    this.trackPlayer();
+  }
+
+  setGain(id: string, gain: number) {
+    const audioStream = this.audioStreams.get(id);
+    if (audioStream) {
+      audioStream.gainNode.gain.value = gain;
+    }
+  }
+
+  setPan(id: string, pan: number) {
+    const audioStream = this.audioStreams.get(id);
+    if (audioStream) {
+      audioStream.panNode.pan.value = pan;
+    }
+  }
+
+  mute(id: string) {
+    const audioStream = this.audioStreams.get(id);
+    if (audioStream) {
+      audioStream.source.stop();
+    }
+  }
+
+  unmute(id: string) {
+    const audioStream = this.audioStreams.get(id);
+    if (audioStream) {
+      audioStream.source.start();
+    }
+  }
+
+  async load(tracks: AudioTrack[]) {
     //https://github.com/cwilso/Audio-Input-Effects/tree/main
-    tracks.forEach((track) => {
-      if (this.sourceNodes.get(track.id)) {
+    const promises = tracks.map(async (track) => {
+      if (this.audioStreams.get(track.fileRef.id)) {
         return;
       }
+      const arrayBuffer = await this.fileService.getArrayBuffer(
+        track.fileRef.id
+      );
+      if (!arrayBuffer) {
+        return;
+      }
+
+      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);      
+
       const source = this.audioContext.createBufferSource();
-      source.buffer = track.buffer;
+      source.buffer = audioBuffer;
 
       const gainNode = this.audioContext.createGain();
       gainNode.gain.value = track.volume;
@@ -36,23 +92,42 @@ export class PlaybackService {
         .connect(panNode)
         .connect(this.audioContext.destination);
 
-      source.start(0);
-      this.sourceNodes.set(track.id, source);
-    });
+      const audioStream: AudioStream = {
+        audioBuffer,
+        source,
+        gainNode,
+        panNode,
+      };
+      this.audioStreams.set(track.fileRef.id, audioStream);
 
-    this.isPlaying.set(true);
-    this.updateTime();
+      source.start(0);
+    });
+    await Promise.all(promises);
+
+    this.updatePlayer();
   }
 
   pause() {
     this.audioContext.suspend();
-    this.isPlaying.set(false);
+    this.updatePlayer();
+  }
+
+  private trackPlayer() {
+    if (!this.isPlaying()) return;
+    this.updatePlayer();
+    requestAnimationFrame(() => this.trackPlayer());
+  }
+
+  private updatePlayer() {
+    this.updateTime();
+    this.updateIsPlaying();
   }
 
   private updateTime() {
-    if (!this.isPlaying()) return;
-
     this.currentTime.set(this.audioContext.currentTime);
-    requestAnimationFrame(() => this.updateTime());
+  }
+
+  private updateIsPlaying() {
+    this.isPlaying.set(this.audioContext.state === "running");
   }
 }

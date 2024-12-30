@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Store } from '@ngxs/store';
+import { Store, dispatch, select } from '@ngxs/store';
 import { tracks } from '../../../libs/state';
 import { TrackControlsComponent } from '../../../libs/shared-ui/src/components/track-controls.component';
 import { FileService } from '../../../libs/file-management/src/file.service';
@@ -25,7 +25,7 @@ import * as Actions from '../../../libs/state/src/audio.actions';
       </div>
       
       <div class="tracks">
-        @for (track of tracks(); track track.id) {
+        @for (track of tracks(); track track.fileRef.id) {
           <app-track-controls
             [track]="track"
             (volumeChange)="updateVolume(track.id, $event)"
@@ -59,7 +59,7 @@ export class PlayerPage {
   private store = inject(Store);
   private fileService = inject(FileService);
   
-  tracks = this.store.selectSignal(tracks);
+  tracks = select(tracks);
   isPlaying = false;
   
   async loadFolder() {
@@ -80,19 +80,8 @@ export class PlayerPage {
     this.isPlaying = !this.isPlaying;
   }
   
-  updateVolume(trackId: string, volume: number) {
-    this.store.dispatch(new Actions.UpdateTrackVolume(trackId, volume));
-  }
-  
-  updatePan(trackId: string, pan: number) {
-    this.store.dispatch(new Actions.UpdateTrackPan(trackId, pan));
-  }
-  
-  toggleMute(trackId: string) {
-    this.store.dispatch(new Actions.ToggleTrackMute(trackId));
-  }
-  
-  toggleSolo(trackId: string) {
-    this.store.dispatch(new Actions.ToggleTrackSolo(trackId));
-  }
+  updateVolume = dispatch(Actions.UpdateTrackVolume);  
+  updatePan = dispatch(Actions.UpdateTrackPan);
+  toggleMute = dispatch(Actions.ToggleTrackMute);
+  toggleSolo = dispatch(Actions.ToggleTrackSolo);
 }
