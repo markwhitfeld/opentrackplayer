@@ -49,20 +49,6 @@ export class PlaybackService {
     }
   }
 
-  mute(id: string) {
-    const audioStream = this.audioStreams.get(id);
-    if (audioStream) {
-      audioStream.source.stop();
-    }
-  }
-
-  unmute(id: string) {
-    const audioStream = this.audioStreams.get(id);
-    if (audioStream) {
-      audioStream.source.start();
-    }
-  }
-
   async load(tracks: AudioTrack[]) {
     //https://github.com/cwilso/Audio-Input-Effects/tree/main
     const promises = tracks.map(async (track) => {

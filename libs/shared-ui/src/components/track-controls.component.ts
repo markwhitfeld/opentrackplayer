@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { MatSliderModule } from "@angular/material/slider";
+import { Component, Input, Output, EventEmitter, output } from "@angular/core";
+import { MatSliderModule, MatSliderThumb } from "@angular/material/slider";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { AudioTrack } from "../../../state";
@@ -7,7 +7,7 @@ import { AudioTrack } from "../../../state";
 @Component({
   selector: "app-track-controls",
   standalone: true,
-  imports: [MatSliderModule, MatButtonModule, MatIconModule],
+  imports: [MatSliderModule, MatSliderThumb, MatButtonModule, MatIconModule],
   template: `
     <div class="track-controls">
       <span class="track-name"
@@ -15,7 +15,13 @@ import { AudioTrack } from "../../../state";
         }}{{ !track.fileRef.dataLoaded ? "(Loading)" : "" }}</span
       >
 
-      <mat-slider class="volume-slider">
+      <mat-slider
+        class="volume-slider"
+        [min]="0"
+        [max]="1"
+        [step]="0.1"
+        discrete
+      >
         <input
           matSliderThumb
           [value]="track.volume"
@@ -23,12 +29,9 @@ import { AudioTrack } from "../../../state";
         />
       </mat-slider>
 
-      <mat-slider class="pan-slider">
+      <mat-slider class="pan-slider" [min]="-1" [max]="1" [step]="0.1" discrete>
         <input
           matSliderThumb
-          [min]="-1"
-          [max]="1"
-          [step]="0.1"
           [value]="track.pan"
           (valueChange)="panChange.emit($event)"
         />
@@ -77,7 +80,7 @@ import { AudioTrack } from "../../../state";
 })
 export class TrackControlsComponent {
   @Input({ required: true }) track!: AudioTrack;
-  @Output() volumeChange = new EventEmitter<number>();
+  volumeChange = output<number>();
   @Output() panChange = new EventEmitter<number>();
   @Output() muteToggle = new EventEmitter<void>();
   @Output() soloToggle = new EventEmitter<void>();

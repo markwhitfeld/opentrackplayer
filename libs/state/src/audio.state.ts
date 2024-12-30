@@ -51,7 +51,7 @@ export class AudioState {
         muted: false,
         pan: 0,
         soloed: false,
-        volume: 100,
+        volume: 1,
       };
     });
     const trackMap: Record<string, AudioTrack> = {};
@@ -70,6 +70,7 @@ export class AudioState {
       )
       // fileRefs.map(file => this.audioService.loadAudioFile(file))
     );
+    await this.playbackService.pause();
     await this.playbackService.load(tracks);
   }
 
@@ -119,7 +120,7 @@ export class AudioState {
     ctx.setState(
       patchTrack(trackId, patch({ pan }))
     );
-    await this.playbackService.setGain(trackId, pan);
+    await this.playbackService.setPan(trackId, pan);
   }
 
   @Action(Actions.ToggleTrackMute)
@@ -128,14 +129,15 @@ export class AudioState {
     action: Actions.ToggleTrackMute
   ) {
     const trackId = action.trackId;
-    const mute = !ctx.getState().trackMap[trackId]?.muted
+    const track = ctx.getState().trackMap[trackId];
+    const mute = !track?.muted
     ctx.setState(
       patchTrack(trackId, patch({ muted: mute }))
     );
     if (mute){
-      await this.playbackService.mute(trackId);
+      await this.playbackService.setGain(trackId, 0);
     } else {
-      await this.playbackService.unmute(trackId);
+      await this.playbackService.setGain(trackId, track.volume);
     }
   }
 
