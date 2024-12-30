@@ -1,0 +1,32 @@
+export class LoadFolder {
+  static readonly type = '[Audio] Load Folder';
+  constructor(public dirHandle: FileSystemDirectoryHandle) {}
+}
+
+export class PlayTracks {
+  static readonly type = '[Audio] Play Tracks';
+}
+
+export class PauseTracks {
+  static readonly type = '[Audio] Pause Tracks';
+}
+
+export class UpdateTrackVolume {
+  static readonly type = '[Audio] Update Volume';
+  constructor(public trackId: string, public volume: number) {}
+}
+
+export class UpdateTrackPan {
+  static readonly type = '[Audio] Update Pan';
+  constructor(public trackId: string, public pan: number) {}
+}
+
+export class ToggleTrackMute {
+  static readonly type = '[Audio] Toggle Mute';
+  constructor(public trackId: string) {}
+}
+
+export class ToggleTrackSolo {
+  static readonly type = '[Audio] Toggle Solo';
+  constructor(public trackId: string) {}
+}
