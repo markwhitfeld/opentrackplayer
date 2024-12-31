@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store, dispatch, select } from '@ngxs/store';
 import { isPlaying, playerReady, tracks } from '../../../libs/state';
 import { TrackControlsComponent } from '../../../libs/shared-ui/src/components/track-controls.component';
@@ -12,7 +13,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, TrackControlsComponent, CommonModule],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, TrackControlsComponent, CommonModule],
   template: `
     <div class="player-container">
       <div class="controls">
@@ -24,7 +25,9 @@ import { CommonModule } from '@angular/common';
         <button mat-icon-button (click)="togglePlayback()" [disabled]="!playerReady()">
           <mat-icon>{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
         </button>
-        <mat-icon *ngIf="!playerReady()">hourglass</mat-icon>
+        <mat-progress-spinner mode="indeterminate" *ngIf="!playerReady() && tracks().length"
+          diameter="40">
+        </mat-progress-spinner>
         
       </div>
       
