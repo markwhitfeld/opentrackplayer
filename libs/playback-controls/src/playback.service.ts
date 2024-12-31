@@ -86,7 +86,7 @@ export class PlaybackService {
       };
       this.audioStreams.set(track.fileRef.id, audioStream);
 
-      source.start(0);
+      source.start(this.audioContext.currentTime, 0);
     });
     await Promise.all(promises);
 
