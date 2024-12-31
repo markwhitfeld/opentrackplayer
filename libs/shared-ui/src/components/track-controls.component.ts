@@ -46,6 +46,7 @@ import { AudioTrack } from "../../../state";
       </button>
 
       <button
+        *ngIf="false"
         mat-icon-button
         [color]="track().soloed ? 'accent' : ''"
         (click)="soloToggle.emit()"
