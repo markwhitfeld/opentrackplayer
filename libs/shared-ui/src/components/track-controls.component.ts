@@ -3,11 +3,12 @@ import { MatSliderModule, MatSliderThumb } from "@angular/material/slider";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { AudioTrack } from "../../../state";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-track-controls",
   standalone: true,
-  imports: [MatSliderModule, MatSliderThumb, MatButtonModule, MatIconModule],
+  imports: [MatSliderModule, MatSliderThumb, MatButtonModule, MatIconModule, CommonModule],
   template: `
     <div class="track-controls">
       <span class="track-name"

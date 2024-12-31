@@ -2,15 +2,17 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Store, dispatch, select } from '@ngxs/store';
-import { tracks } from '../../../libs/state';
+import { isPlaying, playerReady, tracks } from '../../../libs/state';
 import { TrackControlsComponent } from '../../../libs/shared-ui/src/components/track-controls.component';
 import { FileService } from '../../../libs/file-management/src/file.service';
-import * as Actions from '../../../libs/state/src/audio.actions';
+import * as AudioActions from '../../../libs/state/src/audio/audio.actions';
+import * as PlayerActions from '../../../libs/state/src/player/player.actions';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, TrackControlsComponent],
+  imports: [MatButtonModule, MatIconModule, TrackControlsComponent, CommonModule],
   template: `
     <div class="player-container">
       <div class="controls">
@@ -19,9 +21,11 @@ import * as Actions from '../../../libs/state/src/audio.actions';
           Load Folder
         </button>
         
-        <button mat-icon-button (click)="togglePlayback()">
-          <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+        <button mat-icon-button (click)="togglePlayback()" [disabled]="!playerReady()">
+          <mat-icon>{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
         </button>
+        <mat-icon *ngIf="!playerReady()">hourglass</mat-icon>
+        
       </div>
       
       <div class="tracks">
@@ -58,30 +62,30 @@ import * as Actions from '../../../libs/state/src/audio.actions';
 export class PlayerPage {
   private store = inject(Store);
   private fileService = inject(FileService);
-  
+
   tracks = select(tracks);
-  isPlaying = false;
-  
+  isPlaying = select(isPlaying);
+  playerReady = select(playerReady);
+
   async loadFolder() {
     try {
       const dirHandle = await this.fileService.selectFolder();
-      await this.store.dispatch(new Actions.LoadFolder(dirHandle));
+      await this.store.dispatch(new AudioActions.LoadFolder(dirHandle));
     } catch (error) {
       console.error('Failed to load folder:', error);
     }
   }
-  
+
   togglePlayback() {
-    if (this.isPlaying) {
-      this.store.dispatch(new Actions.PauseTracks());
+    if (this.isPlaying()) {
+      this.store.dispatch(new PlayerActions.PauseTracks());
     } else {
-      this.store.dispatch(new Actions.PlayTracks());
+      this.store.dispatch(new PlayerActions.PlayTracks());
     }
-    this.isPlaying = !this.isPlaying;
   }
-  
-  updateVolume = dispatch(Actions.UpdateTrackVolume);  
-  updatePan = dispatch(Actions.UpdateTrackPan);
-  toggleMute = dispatch(Actions.ToggleTrackMute);
-  toggleSolo = dispatch(Actions.ToggleTrackSolo);
+
+  updateVolume = dispatch(AudioActions.UpdateTrackVolume);
+  updatePan = dispatch(AudioActions.UpdateTrackPan);
+  toggleMute = dispatch(AudioActions.ToggleTrackMute);
+  toggleSolo = dispatch(AudioActions.ToggleTrackSolo);
 }

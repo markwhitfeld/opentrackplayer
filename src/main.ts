@@ -4,12 +4,12 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideStore } from '@ngxs/store';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
-import { AudioState } from '../libs/state';
+import { AudioState, PlayerState } from '../libs/state';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    provideStore([AudioState])
+    provideStore([AudioState, PlayerState])
   ]
 }).catch(err => console.error(err));

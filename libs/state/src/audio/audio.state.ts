@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
 import { State, Action, StateContext } from "@ngxs/store";
-import { AudioFile } from "../../audio-core";
-import { FileRef, FileService } from "../../file-management/src/file.service";
-import { PlaybackService } from "../../playback-controls/src/playback.service";
-import { AudioService } from "../../audio-core";
+import { FileRef, FileService } from "../../../file-management/src/file.service";
+import { PlaybackService } from "../../../playback-controls/src/playback.service";
 import * as Actions from "./audio.actions";
 import { StateOperator, patch, updateItem } from "@ngxs/store/operators";
+import { PauseTracks } from "../player/player.actions";
 
 export interface AudioTrack {
   id: string;
@@ -18,8 +17,6 @@ export interface AudioTrack {
 
 export interface AudioStateModel {
   trackMap: Record<string, AudioTrack>;
-  isPlaying: boolean;
-  currentTime: number;
 }
 
 const bandOnly = ['click', 'cue', 'guide'];
@@ -28,14 +25,11 @@ const bandOnly = ['click', 'cue', 'guide'];
   name: "audio",
   defaults: {
     trackMap: {},
-    isPlaying: false,
-    currentTime: 0,
   },
 })
 @Injectable()
 export class AudioState {
   constructor(
-    private audioService: AudioService,
     private fileService: FileService,
     private playbackService: PlaybackService
   ) {}
@@ -74,7 +68,7 @@ export class AudioState {
       )
       // fileRefs.map(file => this.audioService.loadAudioFile(file))
     );
-    await this.playbackService.pause();
+    await ctx.dispatch(new PauseTracks());
     await this.playbackService.load(tracks);
   }
 
@@ -87,18 +81,6 @@ export class AudioState {
     ctx.setState(
       patchTrack(fileRef.id, patch({ fileRef }))
     );
-  }
-
-  @Action(Actions.PlayTracks)
-  async play(ctx: StateContext<AudioStateModel>) {
-    await this.playbackService.play();
-    ctx.patchState({ isPlaying: this.playbackService.isPlaying() });
-  }
-
-  @Action(Actions.PauseTracks)
-  pause(ctx: StateContext<AudioStateModel>) {
-    this.playbackService.pause();
-    ctx.patchState({ isPlaying: this.playbackService.isPlaying() });
   }
 
   @Action(Actions.UpdateTrackVolume)

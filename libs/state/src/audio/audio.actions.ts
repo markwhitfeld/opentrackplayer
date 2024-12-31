@@ -1,16 +1,8 @@
-import { FileRef } from "../../file-management/src/file.service";
+import { FileRef } from "../../../file-management/src/file.service";
 
 export class LoadFolder {
   static readonly type = '[Audio] Load Folder';
   constructor(public dirHandle: FileSystemDirectoryHandle) {}
-}
-
-export class PlayTracks {
-  static readonly type = '[Audio] Play Tracks';
-}
-
-export class PauseTracks {
-  static readonly type = '[Audio] Pause Tracks';
 }
 
 export class UpdateTrackFile {

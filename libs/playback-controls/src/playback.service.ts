@@ -26,15 +26,36 @@ export class PlaybackService {
 
   private audioStreams = new Map<string, AudioStream>();
 
-  readonly currentTime = signal(0);
+  private offset = 0;
+  private started = false;
   readonly isPlaying = signal(false);
+  readonly playerReady = signal(false);
 
   async play() {
-    if (this.isPlaying()) {
+    if (this.isPlaying() || !this.playerReady()) {
       return;
     }
     await this.audioContext.resume();
-    this.trackPlayer();
+    if (this.offset === 0 && !this.started) {      
+      this.startTracks();
+      this.started = true;
+      this.offset = this.audioContext.currentTime;
+    }
+    this.updatePlayer();
+  }
+
+  startTracks() {
+    this.audioStreams.forEach(item => {
+      this.startTrack(item);        
+    })
+  }
+
+  private startTrack(item: AudioStream) {
+    if (this.offset === 0) {
+      item.source.start();
+    } else {
+      item.source.start(0, this.audioContext.currentTime - this.offset);
+    }
   }
 
   setGain(id: string, gain: number) {
@@ -57,7 +78,12 @@ export class PlaybackService {
       item.trackNode.disconnect();
       this.audioStreams.delete(item.id);
     });
-    this.audioStreams.clear()
+    this.audioStreams.clear();
+    this.audioContext.suspend();
+    this.offset = 0;
+    this.started = false;
+    this.playerReady.set(false);
+
     //https://github.com/cwilso/Audio-Input-Effects/tree/main
     const promises = tracks.map(async (track) => {
       const id = track.fileRef.id;
@@ -94,10 +120,10 @@ export class PlaybackService {
         trackNode,
       };
       this.audioStreams.set(track.fileRef.id, audioStream);
-
-      source.start(this.audioContext.currentTime, 0);
     });
     await Promise.all(promises);
+
+    this.playerReady.set(true);
 
     this.updatePlayer();
   }
@@ -107,11 +133,11 @@ export class PlaybackService {
     this.updatePlayer();
   }
 
-  private trackPlayer() {
-    if (!this.isPlaying()) return;
-    this.updatePlayer();
-    requestAnimationFrame(() => this.trackPlayer());
-  }
+  // private trackPlayer() {
+  //   if (!this.isPlaying()) return;
+  //   this.updatePlayer();
+  //   requestAnimationFrame(() => this.trackPlayer());
+  // }
 
   private updatePlayer() {
     this.updateTime();
@@ -119,7 +145,7 @@ export class PlaybackService {
   }
 
   private updateTime() {
-    this.currentTime.set(this.audioContext.currentTime);
+    // this.currentTime.set(this.audioContext.currentTime - this.offset);
   }
 
   private updateIsPlaying() {
