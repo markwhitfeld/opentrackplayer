@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, output } from "@angular/core";
+import { Component, Input, Output, EventEmitter, output, input } from "@angular/core";
 import { MatSliderModule, MatSliderThumb } from "@angular/material/slider";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -11,8 +11,8 @@ import { AudioTrack } from "../../../state";
   template: `
     <div class="track-controls">
       <span class="track-name"
-        >{{ track.fileRef.name
-        }}{{ !track.fileRef.dataLoaded ? "(Loading)" : "" }}</span
+        >{{ track().fileRef.name
+        }}{{ !track().fileRef.dataLoaded ? "(Loading)" : "" }}</span
       >
 
       <mat-slider
@@ -24,7 +24,7 @@ import { AudioTrack } from "../../../state";
       >
         <input
           matSliderThumb
-          [value]="track.volume"
+          [value]="track().volume"
           (valueChange)="volumeChange.emit($event)"
         />
       </mat-slider>
@@ -32,22 +32,22 @@ import { AudioTrack } from "../../../state";
       <mat-slider class="pan-slider" [min]="-1" [max]="1" [step]="0.1" discrete>
         <input
           matSliderThumb
-          [value]="track.pan"
+          [value]="track().pan"
           (valueChange)="panChange.emit($event)"
         />
       </mat-slider>
 
       <button
         mat-icon-button
-        [color]="track.muted ? 'warn' : ''"
+        [color]="track().muted ? 'warn' : ''"
         (click)="muteToggle.emit()"
       >
-        <mat-icon>{{ track.muted ? "volume_off" : "volume_up" }}</mat-icon>
+        <mat-icon>{{ track().muted ? "volume_off" : "volume_up" }}</mat-icon>
       </button>
 
       <button
         mat-icon-button
-        [color]="track.soloed ? 'accent' : ''"
+        [color]="track().soloed ? 'accent' : ''"
         (click)="soloToggle.emit()"
       >
         <mat-icon>headphones</mat-icon>
@@ -79,9 +79,9 @@ import { AudioTrack } from "../../../state";
   ],
 })
 export class TrackControlsComponent {
-  @Input({ required: true }) track!: AudioTrack;
+  track = input.required<AudioTrack>();
   volumeChange = output<number>();
-  @Output() panChange = new EventEmitter<number>();
-  @Output() muteToggle = new EventEmitter<void>();
-  @Output() soloToggle = new EventEmitter<void>();
+  panChange = output<number>();
+  muteToggle = output<void>();
+  soloToggle = output<void>();
 }
