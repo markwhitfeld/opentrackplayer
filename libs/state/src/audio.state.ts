@@ -22,6 +22,8 @@ export interface AudioStateModel {
   currentTime: number;
 }
 
+const bandOnly = ['click', 'cue', 'guide'];
+
 @State<AudioStateModel>({
   name: "audio",
   defaults: {
@@ -45,11 +47,13 @@ export class AudioState {
   ) {
     const fileRefs = await this.fileService.getAudioFiles(action.dirHandle);
     const tracks = fileRefs.map<AudioTrack>((fileRef) => {
+      const name = fileRef.name.toLocaleLowerCase();
+      const pan = bandOnly.some(text => name.includes(text)) ? -1 : 1;
       return {
         id: fileRef.id,
         fileRef,
         muted: false,
-        pan: 0,
+        pan,
         soloed: false,
         volume: 1,
       };
