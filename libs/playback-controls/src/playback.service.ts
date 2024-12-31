@@ -4,10 +4,12 @@ import { FileRef, FileService } from "../../file-management/src/file.service";
 import { lazy } from "./lazy";
 
 interface AudioStream {
+  id: string;
   audioBuffer: AudioBuffer;
   source: AudioBufferSourceNode;
   gainNode: GainNode;
   panNode: StereoPannerNode;
+  trackNode: AudioNode;
 }
 
 const getAudioContext = lazy(() => new AudioContext());
@@ -50,9 +52,16 @@ export class PlaybackService {
   }
 
   async load(tracks: AudioTrack[]) {
+    const previousStreams = [...this.audioStreams.values()];
+    previousStreams.forEach((item) => {
+      item.trackNode.disconnect();
+      this.audioStreams.delete(item.id);
+    });
+    this.audioStreams.clear()
     //https://github.com/cwilso/Audio-Input-Effects/tree/main
     const promises = tracks.map(async (track) => {
-      if (this.audioStreams.get(track.fileRef.id)) {
+      const id = track.fileRef.id;
+      if (this.audioStreams.get(id)) {
         return;
       }
       const arrayBuffer = await this.fileService.getArrayBuffer(
@@ -62,7 +71,7 @@ export class PlaybackService {
         return;
       }
 
-      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);      
+      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
 
       const source = this.audioContext.createBufferSource();
       source.buffer = audioBuffer;
@@ -73,16 +82,16 @@ export class PlaybackService {
       const panNode = this.audioContext.createStereoPanner();
       panNode.pan.value = track.pan;
 
-      source
-        .connect(gainNode)
-        .connect(panNode)
-        .connect(this.audioContext.destination);
+      const trackNode = source.connect(gainNode).connect(panNode);
+      trackNode.connect(this.audioContext.destination);
 
       const audioStream: AudioStream = {
+        id,
         audioBuffer,
         source,
         gainNode,
         panNode,
+        trackNode,
       };
       this.audioStreams.set(track.fileRef.id, audioStream);
 
