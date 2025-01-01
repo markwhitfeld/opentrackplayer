@@ -42,6 +42,7 @@ import { CommonModule } from "@angular/common";
         [max]="1"
         [step]="0.1"
         discrete
+        [disabled]="track().muted"
       >
         <input
           matSliderThumb
@@ -62,6 +63,7 @@ import { CommonModule } from "@angular/common";
         [value]="track().pan + ''"
         (change)="panChange.emit(+$event.value)"
         aria-label="Pan"
+        [disabled]="track().muted"
       >
         <mat-button-toggle value="-1">Left</mat-button-toggle>
         <!--mat-button-toggle value="0">Center</mat-button-toggle-->
