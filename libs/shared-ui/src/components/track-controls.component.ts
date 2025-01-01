@@ -67,7 +67,7 @@ import { CommonModule } from "@angular/common";
         [disabled]="track().muted"
       >
         <mat-button-toggle [value]="-1">Left</mat-button-toggle>
-        <!--mat-button-toggle value="0">Center</mat-button-toggle-->
+        <mat-button-toggle [value]="0">Both</mat-button-toggle>
         <mat-button-toggle [value]="1">Right</mat-button-toggle>
       </mat-button-toggle-group>
 
