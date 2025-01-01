@@ -60,14 +60,15 @@ import { CommonModule } from "@angular/common";
       </mat-slider-->
 
       <mat-button-toggle-group
-        [value]="track().pan + ''"
-        (change)="panChange.emit(+$event.value)"
+        [value]="track().pan"
+        (change)="panChange.emit($event.value)"
         aria-label="Pan"
+        [hideSingleSelectionIndicator]="true"
         [disabled]="track().muted"
       >
-        <mat-button-toggle value="-1">Left</mat-button-toggle>
+        <mat-button-toggle [value]="-1">Left</mat-button-toggle>
         <!--mat-button-toggle value="0">Center</mat-button-toggle-->
-        <mat-button-toggle value="1">Right</mat-button-toggle>
+        <mat-button-toggle [value]="1">Right</mat-button-toggle>
       </mat-button-toggle-group>
 
       <button
