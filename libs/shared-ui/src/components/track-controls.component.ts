@@ -1,5 +1,10 @@
-import { Component, Input, Output, EventEmitter, output, input } from "@angular/core";
+import {
+  Component,
+  output,
+  input,
+} from "@angular/core";
 import { MatSliderModule, MatSliderThumb } from "@angular/material/slider";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { AudioTrack } from "../../../state";
@@ -8,13 +13,28 @@ import { CommonModule } from "@angular/common";
 @Component({
   selector: "app-track-controls",
   standalone: true,
-  imports: [MatSliderModule, MatSliderThumb, MatButtonModule, MatIconModule, CommonModule],
+  imports: [
+    MatSliderModule,
+    MatSliderThumb,
+    MatButtonToggleModule,
+    MatButtonModule,
+    MatIconModule,
+    CommonModule,
+  ],
   template: `
     <div class="track-controls">
       <span class="track-name"
         >{{ track().fileRef.name
         }}{{ !track().fileRef.dataLoaded ? "(Loading)" : "" }}</span
       >
+
+      <button
+        mat-icon-button
+        [color]="track().muted ? 'warn' : ''"
+        (click)="muteToggle.emit()"
+      >
+        <mat-icon>{{ track().muted ? "volume_off" : "volume_up" }}</mat-icon>
+      </button>
 
       <mat-slider
         class="volume-slider"
@@ -30,21 +50,23 @@ import { CommonModule } from "@angular/common";
         />
       </mat-slider>
 
-      <mat-slider class="pan-slider" [min]="-1" [max]="1" [step]="0.1" discrete>
+      <!--mat-slider class="pan-slider" [min]="-1" [max]="1" [step]="0.1" discrete>
         <input
           matSliderThumb
           [value]="track().pan"
           (valueChange)="panChange.emit($event)"
         />
-      </mat-slider>
+      </mat-slider-->
 
-      <button
-        mat-icon-button
-        [color]="track().muted ? 'warn' : ''"
-        (click)="muteToggle.emit()"
+      <mat-button-toggle-group
+        [value]="track().pan + ''"
+        (change)="panChange.emit(+$event.value)"
+        aria-label="Pan"
       >
-        <mat-icon>{{ track().muted ? "volume_off" : "volume_up" }}</mat-icon>
-      </button>
+        <mat-button-toggle value="-1">Left</mat-button-toggle>
+        <!--mat-button-toggle value="0">Center</mat-button-toggle-->
+        <mat-button-toggle value="1">Right</mat-button-toggle>
+      </mat-button-toggle-group>
 
       <button
         *ngIf="false"
