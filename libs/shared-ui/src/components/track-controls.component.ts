@@ -39,15 +39,15 @@ import { CommonModule } from "@angular/common";
       <mat-slider
         class="volume-slider"
         [min]="0"
-        [max]="1"
-        [step]="0.1"
+        [max]="100"
+        [step]="5"
         discrete
         [disabled]="track().muted"
       >
         <input
           matSliderThumb
-          [value]="track().volume"
-          (valueChange)="volumeChange.emit($event)"
+          [value]="track().volume * 100"
+          (valueChange)="volumeChange.emit($event / 100)"
         />
       </mat-slider>
 
