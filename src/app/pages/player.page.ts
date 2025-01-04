@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
             (volumeChange)="updateVolume(track.id, $event)"
             (panChange)="updatePan(track.id, $event)"
             (muteToggle)="toggleMute(track.id)"
-            (soloToggle)="toggleFocused(track.id)"
+            (focusToggle)="toggleFocused(track.id)"
           />
         }
       </div>

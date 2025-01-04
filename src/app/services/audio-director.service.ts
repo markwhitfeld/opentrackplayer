@@ -1,14 +1,18 @@
 import { Injectable, effect, inject } from "@angular/core";
 import { createSelector, select } from "@ngxs/store";
 import { tracks } from "../../../libs/state";
-import { PlaybackService, TrackConfig } from "../../../libs/playback-controls/src/playback.service";
+import {
+  PlaybackService,
+  TrackConfig,
+} from "../../../libs/playback-controls/src/playback.service";
 
 const getTrackConfigs = createSelector([tracks], (tracks) => {
-    return tracks.map<TrackConfig>(track => ({
-        trackId: track.id,
-        gain: track.muted ? 0 : track.volume,
-        pan: track.pan,
-    }))
+  const hasFocused = tracks.some((track) => track.focused);
+  return tracks.map<TrackConfig>((track) => ({
+    trackId: track.id,
+    gain: track.muted ? 0 : hasFocused && !track.focused ? 0 : track.volume,
+    pan: track.pan,
+  }));
 });
 
 @Injectable({
@@ -20,7 +24,7 @@ export class AudioDirectorService {
 
   start() {
     console.log("Starting audio director");
-    
+
     effect(() => {
       const trackConfigs = this.trackConfigs();
       this.player.syncTracks(trackConfigs);
