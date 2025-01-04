@@ -12,6 +12,12 @@ interface AudioStream {
   trackNode: AudioNode;
 }
 
+export interface TrackConfig {
+  trackId: string;
+  gain: number;
+  pan: number;
+}
+
 const getAudioContext = lazy(() => new AudioContext());
 
 @Injectable({
@@ -36,7 +42,7 @@ export class PlaybackService {
       return;
     }
     await this.audioContext.resume();
-    if (this.offset === 0 && !this.started) {      
+    if (this.offset === 0 && !this.started) {
       this.startTracks();
       this.started = true;
       this.offset = this.audioContext.currentTime;
@@ -45,9 +51,9 @@ export class PlaybackService {
   }
 
   startTracks() {
-    this.audioStreams.forEach(item => {
-      this.startTrack(item);        
-    })
+    this.audioStreams.forEach((item) => {
+      this.startTrack(item);
+    });
   }
 
   private startTrack(item: AudioStream) {
@@ -57,10 +63,24 @@ export class PlaybackService {
       item.source.start(0, this.audioContext.currentTime - this.offset);
     }
   }
+  
+  syncTracks(trackConfigs: TrackConfig[]) {
+    trackConfigs.forEach((track) => {
+      const audioStream = this.audioStreams.get(track.trackId);
+      if (audioStream) {
+        audioStream.gainNode.gain.value = track.gain;
+        audioStream.panNode.pan.value = track.pan;
+      }
+    });
+  }
 
   setGain(id: string, gain: number) {
     const audioStream = this.audioStreams.get(id);
     if (audioStream) {
+      // const detune = (gain - 1) * 1200;
+      // audioStream.source.detune.value = detune;
+      // const playbackRate = Math.pow(2, -detune/1200);
+      // audioStream.source.playbackRate.value = playbackRate;
       audioStream.gainNode.gain.value = gain;
     }
   }

@@ -25,7 +25,7 @@ export class ToggleTrackMute {
   constructor(public trackId: string) {}
 }
 
-export class ToggleTrackSolo {
-  static readonly type = '[Audio] Toggle Solo';
+export class ToggleTrackFocused {
+  static readonly type = '[Audio] Toggle Focused';
   constructor(public trackId: string) {}
 }

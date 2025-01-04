@@ -12,7 +12,7 @@ export interface AudioTrack {
   volume: number;
   pan: number;
   muted: boolean;
-  soloed: boolean;
+  focused: boolean;
 }
 
 export interface AudioStateModel {
@@ -48,7 +48,7 @@ export class AudioState {
         fileRef,
         muted: false,
         pan,
-        soloed: false,
+        focused: false,
         volume: 1,
       };
     });
@@ -93,7 +93,6 @@ export class AudioState {
     ctx.setState(
       patchTrack(trackId, patch({ volume }))
     );
-    await this.playbackService.setGain(trackId, volume);
   }
 
   @Action(Actions.UpdateTrackPan)
@@ -106,7 +105,6 @@ export class AudioState {
     ctx.setState(
       patchTrack(trackId, patch({ pan }))
     );
-    await this.playbackService.setPan(trackId, pan);
   }
 
   @Action(Actions.ToggleTrackMute)
@@ -115,29 +113,25 @@ export class AudioState {
     action: Actions.ToggleTrackMute
   ) {
     const trackId = action.trackId;
-    const track = ctx.getState().trackMap[trackId];
-    const mute = !track?.muted
     ctx.setState(
-      patchTrack(trackId, patch({ muted: mute }))
+      patchTrack(trackId, patch({ muted: invertBoolean() }))
     );
-    if (mute){
-      await this.playbackService.setGain(trackId, 0);
-    } else {
-      await this.playbackService.setGain(trackId, track.volume);
-    }
   }
 
-  @Action(Actions.ToggleTrackSolo)
+  @Action(Actions.ToggleTrackFocused)
   async toggleTrackSolo(
     ctx: StateContext<AudioStateModel>,
-    action: Actions.ToggleTrackSolo
+    action: Actions.ToggleTrackFocused
   ) {
-    // const trackId = action.trackId;
-    // ctx.setState(
-    //   patchTrack(trackId, patch({ pan }))
-    // );
-    // await this.playbackService.setGain(trackId, pan);
+    const trackId = action.trackId;
+    ctx.setState(
+      patchTrack(trackId, patch({ focused: invertBoolean() }))
+    );
   }
+}
+
+function invertBoolean(): StateOperator<boolean> {
+  return (val) => !val;
 }
 
 function patchTrack(

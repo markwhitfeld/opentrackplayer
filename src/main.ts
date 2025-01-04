@@ -1,15 +1,21 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideStore } from '@ngxs/store';
-import { AppComponent } from './app/app.component';
-import { routes } from './app/app.routes';
-import { AudioState, PlayerState } from '../libs/state';
+import { bootstrapApplication } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { provideStore } from "@ngxs/store";
+import { AppComponent } from "./app/app.component";
+import { routes } from "./app/app.routes";
+import { AudioState, PlayerState } from "../libs/state";
+import { inject, provideAppInitializer } from "@angular/core";
+import { AudioDirectorService } from "./app/services/audio-director.service";
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    provideStore([AudioState, PlayerState])
-  ]
-}).catch(err => console.error(err));
+    provideStore([AudioState, PlayerState]),
+    provideAppInitializer(() => {
+      const director = inject(AudioDirectorService);
+      director.start();
+    }),
+  ],
+}).catch((err) => console.error(err));

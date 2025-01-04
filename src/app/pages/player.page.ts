@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
             (volumeChange)="updateVolume(track.id, $event)"
             (panChange)="updatePan(track.id, $event)"
             (muteToggle)="toggleMute(track.id)"
-            (soloToggle)="toggleSolo(track.id)"
+            (soloToggle)="toggleFocused(track.id)"
           />
         }
       </div>
@@ -90,5 +90,5 @@ export class PlayerPage {
   updateVolume = dispatch(AudioActions.UpdateTrackVolume);
   updatePan = dispatch(AudioActions.UpdateTrackPan);
   toggleMute = dispatch(AudioActions.ToggleTrackMute);
-  toggleSolo = dispatch(AudioActions.ToggleTrackSolo);
+  toggleFocused = dispatch(AudioActions.ToggleTrackFocused);
 }
