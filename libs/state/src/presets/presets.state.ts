@@ -11,7 +11,7 @@ export interface PresetStateModel {
 }
 
 @State<PresetStateModel>({
-  name: "audio",
+  name: "presets",
   defaults: {
     defaultPreset: {
       name: "Split",
@@ -39,7 +39,7 @@ export interface PresetStateModel {
         focusedTrack: { volume: 1, pan: 0 },
       },
     ],
-    currentPresetName: "Practice",
+    currentPresetName: "",
   },
 })
 @Injectable()
