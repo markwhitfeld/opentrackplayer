@@ -5,14 +5,16 @@ import { StateOperator, patch, updateItem } from "@ngxs/store/operators";
 import { Preset, TrackConfig, TrackGroup } from "./preset.models";
 
 export interface PresetStateModel {
+  bandOnlyTrackNames: string[];
   defaultPreset: Preset;
   presets: Preset[];
-  currentPresetName: string;
+  selectedPresetName: string;
 }
 
 @State<PresetStateModel>({
   name: "presets",
   defaults: {
+    bandOnlyTrackNames: ['click', 'cue', 'guide'],
     defaultPreset: {
       name: "Split",
       bandTrack: { volume: 0.75, pan: -1 },
@@ -39,7 +41,7 @@ export interface PresetStateModel {
         focusedTrack: { volume: 1, pan: 0 },
       },
     ],
-    currentPresetName: "",
+    selectedPresetName: "",
   },
 })
 @Injectable()
@@ -73,7 +75,7 @@ export class PresetState {
   ) {
     ctx.setState(
       patch({
-        currentPresetName: action.name,
+        selectedPresetName: action.name,
       })
     );
   }

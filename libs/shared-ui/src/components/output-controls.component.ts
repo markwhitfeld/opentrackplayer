@@ -1,8 +1,4 @@
-import {
-  Component,
-  output,
-  input,
-} from "@angular/core";
+import { Component, output, input } from "@angular/core";
 import { MatSliderModule, MatSliderThumb } from "@angular/material/slider";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { MatButtonModule } from "@angular/material/button";
@@ -22,8 +18,7 @@ import { TrackConfig } from "../../../state/src/presets/preset.models";
     CommonModule,
   ],
   template: `
-    <div class="output-controls">
-
+    <div class="output-controls" [class.vertical]="vertical()">
       <mat-slider
         class="volume-slider"
         [min]="0"
@@ -70,6 +65,11 @@ import { TrackConfig } from "../../../state/src/presets/preset.models";
         border-bottom: 1px solid #eee;
       }
 
+      .vertical {
+        display: flex;
+        flex-direction: column;
+      }
+
       .volume-slider {
         width: 100px;
       }
@@ -83,6 +83,7 @@ import { TrackConfig } from "../../../state/src/presets/preset.models";
 export class OutputControlsComponent {
   trackConfig = input.required<TrackConfig>();
   disabled = input<boolean>(false);
+  vertical = input<boolean>(false);
   volumeChange = output<number>();
   panChange = output<number>();
 }

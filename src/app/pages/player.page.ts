@@ -10,7 +10,7 @@ import * as AudioActions from "../../../libs/state/src/audio/audio.actions";
 import * as PlayerActions from "../../../libs/state/src/player/player.actions";
 import { CommonModule } from "@angular/common";
 import {
-  currentPreset,
+  getSelectedPreset,
   getPresets,
 } from "../../../libs/state/src/presets/preset.selectors";
 import {
@@ -27,7 +27,7 @@ const getViewModel = createModelSelector({
   playerReady,
   isPlaying,
   getPresets,
-  currentPreset,
+  currentPreset: getSelectedPreset,
 });
 
 @Component({

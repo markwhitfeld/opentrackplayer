@@ -11,7 +11,7 @@ import {
 } from "../../../state/src/presets/preset.models";
 import {
   getPresets,
-  currentPreset,
+  getSelectedPreset,
 } from "../../../state/src/presets/preset.selectors";
 import { OutputControlsComponent } from "./output-controls.component";
 import { UpdatePreset } from "../../../state/src/presets/preset.actions";
@@ -21,7 +21,7 @@ const getViewModel = createModelSelector({
   playerReady,
   isPlaying,
   getPresets,
-  currentPreset,
+  currentPreset: getSelectedPreset,
 });
 
 @Component({
@@ -39,6 +39,7 @@ const getViewModel = createModelSelector({
             <span>{{ trackGroupNames[trackGroup] }}:</span>
             <app-output-controls
               [trackConfig]="trackConfig"
+              [vertical]="true"
               (panChange)="changePresetPan(preset(), trackGroup, $event)"
               (volumeChange)="changePresetVolume(preset(), trackGroup, $event)"
             ></app-output-controls>

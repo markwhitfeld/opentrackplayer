@@ -1,19 +1,9 @@
 import { Injectable, effect, inject } from "@angular/core";
-import { createSelector, select } from "@ngxs/store";
-import { tracks } from "../../../libs/state";
+import { select } from "@ngxs/store";
 import {
   PlaybackService,
-  TrackConfig,
 } from "../../../libs/playback-controls/src/playback.service";
-
-const getTrackConfigs = createSelector([tracks], (tracks) => {
-  const hasFocused = tracks.some((track) => track.focused);
-  return tracks.map<TrackConfig>((track) => ({
-    trackId: track.id,
-    gain: track.muted ? 0 : hasFocused && !track.focused ? 0 : track.volume,
-    pan: track.pan,
-  }));
-});
+import { getTrackConfigs } from "../selectors/tracks.selectors";
 
 @Injectable({
   providedIn: "root",

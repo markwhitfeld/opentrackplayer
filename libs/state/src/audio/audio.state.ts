@@ -8,9 +8,10 @@ import { PauseTracks } from "../player/player.actions";
 
 export interface AudioTrack {
   id: string;
+  name: string;
   fileRef: FileRef;
   volume: number;
-  pan: number;
+  pan: number | null;
   muted: boolean;
   focused: boolean;
 }
@@ -18,8 +19,6 @@ export interface AudioTrack {
 export interface AudioStateModel {
   trackMap: Record<string, AudioTrack>;
 }
-
-const bandOnly = ['click', 'cue', 'guide'];
 
 @State<AudioStateModel>({
   name: "audio",
@@ -42,12 +41,12 @@ export class AudioState {
     const fileRefs = await this.fileService.getAudioFiles(action.dirHandle);
     const tracks = fileRefs.map<AudioTrack>((fileRef) => {
       const name = fileRef.name.toLocaleLowerCase();
-      const pan = bandOnly.some(text => name.includes(text)) ? -1 : 1;
       return {
         id: fileRef.id,
+        name,
         fileRef,
         muted: false,
-        pan,
+        pan: null,
         focused: false,
         volume: 1,
       };

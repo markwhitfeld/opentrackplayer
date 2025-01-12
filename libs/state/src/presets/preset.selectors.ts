@@ -4,11 +4,12 @@ import { PresetStateModel, PresetState } from "./presets.state";
 export const {
   defaultPreset: getDefaultPreset,
   presets: getPresets,
-  currentPresetName: getCurrentPresetName,
+  selectedPresetName: getSelectedPresetName,
+  bandOnlyTrackNames: getBandOnlyTrackNames,
 } = createPropertySelectors<PresetStateModel>(PresetState);
 
-export const currentPreset = createSelector(
-  [getPresets, getCurrentPresetName],
-  (presets, currentPresetName) =>
-    presets.find((item) => item.name === currentPresetName)
+export const getSelectedPreset = createSelector(
+  [getPresets, getSelectedPresetName, getDefaultPreset],
+  (presets, selectedPresetName, defaultPreset) =>
+    presets.find((item) => item.name === selectedPresetName) ?? defaultPreset
 );

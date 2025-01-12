@@ -126,7 +126,7 @@ export class PlaybackService {
       gainNode.gain.value = track.volume;
 
       const panNode = this.audioContext.createStereoPanner();
-      panNode.pan.value = track.pan;
+      panNode.pan.value = track.pan ?? 0;
 
       const trackNode = source.connect(gainNode).connect(panNode);
       trackNode.connect(this.audioContext.destination);
