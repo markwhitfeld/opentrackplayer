@@ -10,7 +10,6 @@ import * as AudioActions from "../../../libs/state/src/audio/audio.actions";
 import * as PlayerActions from "../../../libs/state/src/player/player.actions";
 import { CommonModule } from "@angular/common";
 import {
-  getSelectedPreset,
   getPresets,
 } from "../../../libs/state/src/presets/preset.selectors";
 import {
@@ -21,13 +20,14 @@ import {
 } from "../../../libs/state/src/presets/preset.models";
 import * as PresetActions from "../../../libs/state/src/presets/preset.actions";
 import { PresetControlsComponent } from "../../../libs/shared-ui/src/components/preset-controls.component";
+import { getApplicablePreset } from "../selectors/tracks.selectors";
 
 const getViewModel = createModelSelector({
   tracks,
   playerReady,
   isPlaying,
   getPresets,
-  currentPreset: getSelectedPreset,
+  currentPreset: getApplicablePreset,
 });
 
 @Component({

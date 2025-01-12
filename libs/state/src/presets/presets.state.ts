@@ -41,7 +41,7 @@ export interface PresetStateModel {
         focusedTrack: { volume: 1, pan: 0 },
       },
     ],
-    selectedPresetName: "",
+    selectedPresetName: "Practice",
   },
 })
 @Injectable()

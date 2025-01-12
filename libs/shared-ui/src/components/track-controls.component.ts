@@ -72,12 +72,11 @@ import { CommonModule } from "@angular/common";
       </mat-button-toggle-group>
 
       <button
-        *ngIf="false"
         mat-icon-button
         [color]="track().focused ? 'accent' : ''"
-        (click)="soloToggle.emit()"
+        (click)="focusToggle.emit()"
       >
-        <mat-icon>headphones</mat-icon>
+        <mat-icon>{{ track().focused ? 'adjust' : 'circle' }}</mat-icon>
       </button>
     </div>
   `,
@@ -110,5 +109,5 @@ export class TrackControlsComponent {
   volumeChange = output<number>();
   panChange = output<number>();
   muteToggle = output<void>();
-  soloToggle = output<void>();
+  focusToggle = output<void>();
 }
