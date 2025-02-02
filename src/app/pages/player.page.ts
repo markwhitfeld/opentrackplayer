@@ -9,9 +9,7 @@ import { FileService } from "../../../libs/file-management/src/file.service";
 import * as AudioActions from "../../../libs/state/src/audio/audio.actions";
 import * as PlayerActions from "../../../libs/state/src/player/player.actions";
 import { CommonModule } from "@angular/common";
-import {
-  getPresets,
-} from "../../../libs/state/src/presets/preset.selectors";
+import { getAllPresets } from "../../../libs/state/src/presets/preset.selectors";
 import {
   Preset,
   TrackGroup,
@@ -21,12 +19,16 @@ import {
 import * as PresetActions from "../../../libs/state/src/presets/preset.actions";
 import { PresetControlsComponent } from "../../../libs/shared-ui/src/components/preset-controls.component";
 import { getApplicablePreset } from "../selectors/tracks.selectors";
+import {
+  MatButtonToggle,
+  MatButtonToggleGroup,
+} from "@angular/material/button-toggle";
 
 const getViewModel = createModelSelector({
   tracks,
   playerReady,
   isPlaying,
-  getPresets,
+  presets: getAllPresets,
   currentPreset: getApplicablePreset,
 });
 
@@ -38,6 +40,8 @@ const getViewModel = createModelSelector({
     MatIconModule,
     MatProgressSpinnerModule,
     TrackControlsComponent,
+    MatButtonToggleGroup,
+    MatButtonToggle,
     CommonModule,
     PresetControlsComponent,
   ],
@@ -65,6 +69,21 @@ const getViewModel = createModelSelector({
         >
         </mat-progress-spinner>
       </div>
+
+      <p>
+        <mat-button-toggle-group
+          [value]="viewModel().currentPreset"
+          (change)="onPresetChange($event.value)"
+          aria-label="Preset"
+          [hideSingleSelectionIndicator]="true"
+        >
+          @for (preset of viewModel().presets; track $index) {
+          <mat-button-toggle [value]="preset">{{
+            preset.name
+          }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </p>
 
       @if(viewModel().currentPreset; as preset) {
       <app-preset-controls [preset]="preset"></app-preset-controls>
@@ -111,11 +130,16 @@ export class PlayerPage {
   trackGroupNames = trackGroupNames;
   viewModel = select(getViewModel);
 
+  setCurrentPreset = dispatch(PresetActions.SetCurrentPreset);
   updatePreset = dispatch(PresetActions.UpdatePreset);
   updateVolume = dispatch(AudioActions.UpdateTrackVolume);
   updatePan = dispatch(AudioActions.UpdateTrackPan);
   toggleMute = dispatch(AudioActions.ToggleTrackMute);
   toggleFocused = dispatch(AudioActions.ToggleTrackFocused);
+
+  onPresetChange(preset: Preset) {
+    this.setCurrentPreset(preset.name);
+  }
 
   changePresetVolume(preset: Preset, trackGroup: TrackGroup, volume: number) {
     this.updatePreset(preset.name, trackGroup, { volume });

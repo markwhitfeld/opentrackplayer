@@ -31,7 +31,6 @@ const getViewModel = createModelSelector({
   template: `
     <div class="presets-container">
       <div class="controls">
-        <p>{{ preset().name }}</p>
         <div class="groups">
           @for(trackGroup of trackGroups; track trackGroup) {
           @if(preset()[trackGroup]; as trackConfig) {
