@@ -2,14 +2,12 @@ import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { Store, createModelSelector, dispatch, select } from "@ngxs/store";
-import { isPlaying, playerReady, tracks } from "../../../libs/state";
+import { Store, dispatch, select } from "@ngxs/store";
 import { TrackControlsComponent } from "../../../libs/shared-ui/src/components/track-controls.component";
 import { FileService } from "../../../libs/file-management/src/file.service";
 import * as AudioActions from "../../../libs/state/src/audio/audio.actions";
 import * as PlayerActions from "../../../libs/state/src/player/player.actions";
 import { CommonModule } from "@angular/common";
-import { getAllPresets } from "../../../libs/state/src/presets/preset.selectors";
 import {
   Preset,
   TrackGroup,
@@ -18,19 +16,11 @@ import {
 } from "../../../libs/state/src/presets/preset.models";
 import * as PresetActions from "../../../libs/state/src/presets/preset.actions";
 import { PresetControlsComponent } from "../../../libs/shared-ui/src/components/preset-controls.component";
-import { getApplicablePreset } from "../selectors/tracks.selectors";
 import {
   MatButtonToggle,
   MatButtonToggleGroup,
 } from "@angular/material/button-toggle";
-
-const getViewModel = createModelSelector({
-  tracks,
-  playerReady,
-  isPlaying,
-  presets: getAllPresets,
-  currentPreset: getApplicablePreset,
-});
+import { getViewModel } from "./player.page.viewmodel";
 
 @Component({
   selector: "app-player",
@@ -68,22 +58,22 @@ const getViewModel = createModelSelector({
           diameter="40"
         >
         </mat-progress-spinner>
-      </div>
 
-      <p>
+        @if(viewModel().hasFocusedTracks){
         <mat-button-toggle-group
-          [value]="viewModel().currentPreset"
+          [value]="viewModel().currentPreset.name"
           (change)="onPresetChange($event.value)"
           aria-label="Preset"
           [hideSingleSelectionIndicator]="true"
         >
           @for (preset of viewModel().presets; track $index) {
-          <mat-button-toggle [value]="preset">{{
+          <mat-button-toggle [value]="preset.name">{{
             preset.name
           }}</mat-button-toggle>
           }
         </mat-button-toggle-group>
-      </p>
+        }
+      </div>
 
       @if(viewModel().currentPreset; as preset) {
       <app-preset-controls [preset]="preset"></app-preset-controls>
@@ -137,8 +127,8 @@ export class PlayerPage {
   toggleMute = dispatch(AudioActions.ToggleTrackMute);
   toggleFocused = dispatch(AudioActions.ToggleTrackFocused);
 
-  onPresetChange(preset: Preset) {
-    this.setCurrentPreset(preset.name);
+  onPresetChange(presetName: string) {
+    this.setCurrentPreset(presetName);
   }
 
   changePresetVolume(preset: Preset, trackGroup: TrackGroup, volume: number) {

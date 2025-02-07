@@ -3,6 +3,7 @@ import {
   getSelectedPreset,
   getDefaultPreset,
   getBandOnlyTrackNames,
+  getAppliedPreset,
 } from "../../../libs/state/src/presets/preset.selectors";
 import { AudioTrack, tracks } from "../../../libs/state";
 import { TrackConfig } from "../../../libs/playback-controls/src/playback.service";
@@ -14,9 +15,9 @@ export const hasFocusedTracks = createSelector([tracks], (tracks) => {
 });
 
 export const getApplicablePreset = createSelector(
-  [getSelectedPreset, getDefaultPreset, hasFocusedTracks],
-  (selectedPreset, defaultPreset, hasFocusedTracks) =>
-    hasFocusedTracks ? selectedPreset : defaultPreset
+  [getAppliedPreset, getDefaultPreset, hasFocusedTracks],
+  (appliedPreset, defaultPreset, hasFocusedTracks) =>
+    hasFocusedTracks ? appliedPreset : defaultPreset
 );
 
 export const getTrackGroupConfigFn = createSelector(

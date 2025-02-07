@@ -3,6 +3,7 @@ export interface Preset {
   bandTrack: TrackConfig;
   instrumentsTrack: TrackConfig;
   focusedTrack: TrackConfig;
+  fixedPreset?: boolean;
 }
 
 export const trackGroupNames : Record<TrackGroup,string> = {
