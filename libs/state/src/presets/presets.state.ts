@@ -25,7 +25,7 @@ export interface PresetStateModel {
       name: "Split",
       bandTrack: { volume: 0.75, pan: -1 },
       instrumentsTrack: { volume: 0.75, pan: 1 },
-      focusedTrack: { volume: 0, pan: 0 },
+      focusedTrack: { volume: 0, pan: 0, hidden: true },
     },
     presets: {
       Solo: {

@@ -18,4 +18,5 @@ export type TrackGroup = typeof trackGroups[number];
 export interface TrackConfig {
   volume: number;
   pan: number;
+  hidden?: boolean;
 }

@@ -33,7 +33,7 @@ const getViewModel = createModelSelector({
       <div class="controls">
         <div class="groups">
           @for(trackGroup of trackGroups; track trackGroup) {
-          @if(preset()[trackGroup]; as trackConfig) {
+          @if(preset()[trackGroup]; as trackConfig) { @if(!trackConfig.hidden){
           <div class="group">
             <span>{{ trackGroupNames[trackGroup] }}:</span>
             <app-output-controls
@@ -43,7 +43,7 @@ const getViewModel = createModelSelector({
               (volumeChange)="changePresetVolume(preset(), trackGroup, $event)"
             ></app-output-controls>
           </div>
-          } }
+          } } }
         </div>
       </div>
     </div>
